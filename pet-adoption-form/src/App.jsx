@@ -27,13 +27,47 @@ function Header() {
   </div>
 }
 
-const inputFields = ["Pet Name", "Pet Type", "Breed", "Your Name", "Email", "Phone"];
+function validateInput(id, value) {
+  let error = "";
+  if(id == "Pet Name") {
+    if(value.length < 4) {
+      error = "Pet Name should have more than 3 characters!"
+    }
+  }else if(id == "Pet Type") {
+    if(value.length == 0) {
+      error = "Pet Type can't be empty!"
+    }
+  }else if(id == "Breed") {
+    if(value.length < 4) {
+      error = "Breed value should have more than 3 characters!"
+    }
+  }else if(id == "Your Name") {
+    if(value.length < 4) {
+      error = "Your Name should have more than 3 characters!"
+    }
+  }else if(id == "Email") {
 
+  }else if(id == "Phone") {
+    if(isNaN(Number(value))) {
+      error = "Phone number should only contain digits from 0 - 9!"
+    }else if(value.length != 10) {
+      error = "Phone number should have exactly 10 digits!"
+    }
+  }
+  return error;
+}
+
+const inputFields = ["Pet Name", "Pet Type", "Breed", "Your Name", "Email", "Phone"];
 function Form({onSubmit, updateUserData}) {
   const [formData, setFormData] = useState({});
+  const [errors, setErrors] = useState({});
 
   function handleChange(e) {
     const {id, value} = e.target;
+    const errorFound = validateInput(id, value);
+    setErrors(prevErrors => {
+      return {...prevErrors, [id]: errorFound};
+    })
     setFormData(prevData => ({
       ...prevData,
       [id]: value
@@ -42,8 +76,31 @@ function Form({onSubmit, updateUserData}) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    updateUserData(formData);
-    onSubmit();
+    let newErrors = {};
+    for(const id of inputFields) {
+      if(!(id in formData)) {
+        const errorFound = validateInput(id, "");
+        newErrors[id] = errorFound;
+      }
+    }
+    setErrors(prevErrors => {
+      return {...prevErrors, ...newErrors};
+    })
+
+    let canUpdate = true;
+    Object.values(errors).forEach((value) => {
+      if(value !== "") {
+        canUpdate = false;
+      }
+    }) 
+    if(JSON.stringify(newErrors) !== "{}") {
+      canUpdate = false;
+    }
+    
+    if(canUpdate) {
+      updateUserData(formData);
+      onSubmit();
+    }
   };
 
   return <form onSubmit={handleSubmit} style={formStyle}>
@@ -52,6 +109,7 @@ function Form({onSubmit, updateUserData}) {
         <div key={field} style={fieldDivStyle}>
           <label htmlFor={field} style={labelStyle}>{field}</label>
           <input type="text" placeholder={field} id={field} style={inputStyle} value={formData[field] || ""} onChange={handleChange}></input>
+          <p>{errors[field] || ""}</p>
         </div>
 
       ))
