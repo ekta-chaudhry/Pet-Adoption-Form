@@ -46,6 +46,10 @@ function validateInput(id, value) {
       error = "Your Name should have more than 3 characters!"
     }
   }else if(id == "Email") {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    if(!emailRegex.test(value)) {
+      error = "Email is invalid!"
+    }
 
   }else if(id == "Phone") {
     if(isNaN(Number(value))) {
@@ -109,7 +113,7 @@ function Form({onSubmit, updateUserData}) {
         <div key={field} style={fieldDivStyle}>
           <label htmlFor={field} style={labelStyle}>{field}</label>
           <input type="text" placeholder={field} id={field} style={inputStyle} value={formData[field] || ""} onChange={handleChange}></input>
-          <p>{errors[field] || ""}</p>
+          <p style={errorStyle}>{errors[field] || ""}</p>
         </div>
 
       ))
@@ -136,6 +140,7 @@ function UserTable({onClick, data}) {
     <button onClick={onClick} style={buttonStyle}>Go Back</button>
   </div>
 }
+
 
 const headerStyle = {
   textAlign: "center", color: "green", 
@@ -192,4 +197,7 @@ const cellStyle = {
   border: "1px solid #ccc"
 }
 
+const errorStyle = {
+  color: "darkred"
+}
 export default App
